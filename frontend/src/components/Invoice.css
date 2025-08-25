@@ -1,0 +1,25 @@
+/* This class will be applied to the main container of our printable page */
+.invoice-container {
+    padding: 2rem;
+}
+
+/* @media print is a special CSS rule that only applies when printing */
+@media print {
+    /* Hide everything in the body by default when printing */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Then, make the invoice container and everything inside it visible */
+    .invoice-container, .invoice-container * {
+        visibility: visible;
+    }
+
+    /* Position the invoice at the top of the print page */
+    .invoice-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
