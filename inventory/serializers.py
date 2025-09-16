@@ -1,22 +1,22 @@
 """
 Serializers for the inventory app.
 
-This file defines how complex data, such as model instances, are converted to
-native Python datatypes that can then be easily rendered into JSON for the API.
+Defines how complex data, such as model instances, are converted to
+native Python datatypes for JSON rendering in the API.
 """
 
 from rest_framework import serializers
 from django.db import transaction
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from .models import AuditLog
 from .models import (
     User, Supplier, Product, PurchaseOrder, PurchaseOrderItem, 
     SalesOrder, SalesOrderItem, InventoryTransaction
 )
 
-
-# === Authentication and User Management Serializers ===
-
+# ============================================================================
+#  AUTHENTICATION AND USER MANAGEMENT SERIALIZERS
+# ============================================================================
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Customizes the JWT token to include user's role and username."""
     @classmethod
@@ -25,6 +25,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['role'] = user.role
         return token
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     """Serializer for new user registration."""
@@ -51,11 +52,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for reading user data."""
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'role', 'first_name', 'last_name']
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for updating a user's own profile."""
@@ -63,6 +66,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
         read_only_fields = ['username']
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     """Serializer for handling a password change."""
@@ -88,29 +92,33 @@ class ChangePasswordSerializer(serializers.Serializer):
         return user
 
 
-# === Core Model Serializers (Read/Write) ===
-
+# ============================================================================
+#  CORE MODEL SERIALIZERS (READ/WRITE)
+# ============================================================================
 class SupplierSerializer(serializers.ModelSerializer):
     """Serializer for reading and writing Supplier data."""
     class Meta:
         model = Supplier
         fields = ['id', 'name', 'contact_info', 'email', 'phone']
 
+
 class ProductSerializer(serializers.ModelSerializer):
     """Serializer for reading and writing Product data."""
     class Meta:
         model = Product
-        fields = ['id', 'name', 'sku', 'category', 'unit_price', 'stock_quantity', 'min_stock_level']
+        fields = ['id', 'name', 'sku', 'category', 'unit_price', 'stock_quantity', 'min_stock_level','is_active']
 
 
-# === Purchase Order Serializers ===
-
+# ============================================================================
+#  PURCHASE ORDER SERIALIZERS
+# ============================================================================
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
     """Read-only serializer for items within a Purchase Order."""
     product = ProductSerializer(read_only=True)
     class Meta:
         model = PurchaseOrderItem
         fields = ['id', 'product', 'quantity', 'unit_price']
+
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
     """Read-only serializer for a complete Purchase Order."""
@@ -120,11 +128,13 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         model = PurchaseOrder
         fields = ['id', 'supplier', 'order_date', 'status', 'items']
 
+
 class PurchaseOrderItemWriteSerializer(serializers.ModelSerializer):
     """Write-only serializer for creating items within a Purchase Order."""
     class Meta:
         model = PurchaseOrderItem
         fields = ['product', 'quantity', 'unit_price']
+
 
 class PurchaseOrderWriteSerializer(serializers.ModelSerializer):
     """Write-only serializer for creating a complete Purchase Order."""
@@ -132,6 +142,7 @@ class PurchaseOrderWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrder
         fields = ['supplier', 'status', 'items']
+
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         with transaction.atomic():
@@ -141,14 +152,16 @@ class PurchaseOrderWriteSerializer(serializers.ModelSerializer):
         return purchase_order
 
 
-# === Sales Order Serializers ===
-
+# ============================================================================
+#  SALES ORDER SERIALIZERS
+# ============================================================================
 class SalesOrderItemSerializer(serializers.ModelSerializer):
     """Read-only serializer for items within a Sales Order."""
     product = ProductSerializer(read_only=True)
     class Meta:
         model = SalesOrderItem
         fields = ['id', 'product', 'quantity', 'unit_price']
+
 
 class SalesOrderSerializer(serializers.ModelSerializer):
     """Read-only serializer for a complete Sales Order."""
@@ -157,11 +170,13 @@ class SalesOrderSerializer(serializers.ModelSerializer):
         model = SalesOrder
         fields = ['id', 'customer_name', 'order_date', 'status', 'items']
 
+
 class SalesOrderItemWriteSerializer(serializers.ModelSerializer):
     """Write-only serializer for creating items within a Sales Order."""
     class Meta:
         model = SalesOrderItem
         fields = ['product', 'quantity', 'unit_price']
+
 
 class SalesOrderWriteSerializer(serializers.ModelSerializer):
     """
@@ -172,6 +187,7 @@ class SalesOrderWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalesOrder
         fields = ['customer_name', 'status', 'items']
+
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         user = self.context['request'].user
@@ -194,8 +210,9 @@ class SalesOrderWriteSerializer(serializers.ModelSerializer):
         return sales_order
 
 
-# === Logging Serializer ===
-        
+# ============================================================================
+#  LOGGING SERIALIZERS
+# ============================================================================
 class InventoryTransactionSerializer(serializers.ModelSerializer):
     """Serializer for reading transaction logs."""
     product = ProductSerializer(read_only=True)
@@ -203,3 +220,11 @@ class InventoryTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = InventoryTransaction
         fields = ['id', 'product', 'transaction_type', 'quantity_change', 'timestamp', 'user', 'reason']
+
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    """Serializer for audit logs of user actions."""
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = AuditLog
+        fields = ['id', 'user', 'action', 'timestamp', 'object_repr']

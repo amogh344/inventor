@@ -1,5 +1,8 @@
-# inventory/permissions.py
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+# ============================================================================
+#  CUSTOM PERMISSIONS
+# ============================================================================
 
 class IsAdminOrManager(BasePermission):
     """
@@ -7,6 +10,7 @@ class IsAdminOrManager(BasePermission):
     """
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and (request.user.role in ['Admin', 'Manager'])
+
 
 class IsStaffReadOnly(BasePermission):
     """

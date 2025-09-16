@@ -1,9 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
-
-# === USER AND SUPPLIER MODELS ===
-
+# ============================================================================
+#  USER AND SUPPLIER MODELS
+# ============================================================================
 class User(AbstractUser):
     """
     Custom user model extending Django's built-in user.
@@ -20,6 +23,7 @@ class User(AbstractUser):
         verbose_name = 'User'
         verbose_name_plural = 'Users'
 
+
 class Supplier(models.Model):
     """Represents a supplier or vendor who provides products."""
     name = models.CharField(max_length=255, help_text="The name of the supplier company.")
@@ -35,8 +39,9 @@ class Supplier(models.Model):
         verbose_name_plural = 'Suppliers'
 
 
-# === PRODUCT AND STOCK MODELS ===
-
+# ============================================================================
+#  PRODUCT AND STOCK MODELS
+# ============================================================================
 class Product(models.Model):
     """Represents an item in the inventory."""
     name = models.CharField(max_length=255, help_text="The name of the product.")
@@ -45,6 +50,7 @@ class Product(models.Model):
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="The selling price for one unit of the product.")
     stock_quantity = models.PositiveIntegerField(default=0, help_text="Current number of units in stock.")
     min_stock_level = models.PositiveIntegerField(default=10, help_text="The stock level at which a reorder alert is triggered.")
+    is_active = models.BooleanField(default=True) 
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
@@ -54,8 +60,9 @@ class Product(models.Model):
         verbose_name_plural = 'Products'
 
 
-# === ORDER MODELS ===
-
+# ============================================================================
+#  ORDER MODELS
+# ============================================================================
 class PurchaseOrder(models.Model):
     """Represents an order placed with a supplier to replenish stock."""
     class Status(models.TextChoices):
@@ -74,6 +81,7 @@ class PurchaseOrder(models.Model):
         verbose_name = 'Purchase Order'
         verbose_name_plural = 'Purchase Orders'
 
+
 class PurchaseOrderItem(models.Model):
     """Represents a single line item within a Purchase Order."""
     purchase_order = models.ForeignKey(PurchaseOrder, related_name="items", on_delete=models.CASCADE)
@@ -83,6 +91,7 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in PO-{self.purchase_order.id}"
+
 
 class SalesOrder(models.Model):
     """Represents a sales order from a customer."""
@@ -102,6 +111,7 @@ class SalesOrder(models.Model):
         verbose_name = 'Sales Order'
         verbose_name_plural = 'Sales Orders'
 
+
 class SalesOrderItem(models.Model):
     """Represents a single line item within a Sales Order."""
     sales_order = models.ForeignKey(SalesOrder, related_name="items", on_delete=models.CASCADE)
@@ -113,8 +123,9 @@ class SalesOrderItem(models.Model):
         return f"{self.quantity} x {self.product.name} in SO-{self.sales_order.id}"
 
 
-# === LOGGING MODEL ===
-
+# ============================================================================
+#  INVENTORY TRANSACTION LOGS
+# ============================================================================
 class InventoryTransaction(models.Model):
     """Logs every movement of stock (in or out)."""
     class TransactionType(models.TextChoices):
@@ -135,4 +146,39 @@ class InventoryTransaction(models.Model):
     class Meta:
         verbose_name = 'Inventory Transaction'
         verbose_name_plural = 'Inventory Transactions'
+        ordering = ['-timestamp']
+
+
+# ============================================================================
+#  AUDIT LOG MODEL
+# ============================================================================
+class AuditLog(models.Model):
+    """Records significant actions performed by users for auditing purposes."""
+    
+    class Action(models.TextChoices):
+        CREATED = 'CREATED', 'Created'
+        UPDATED = 'UPDATED', 'Updated'
+        DELETED = 'DELETED', 'Deleted'
+        RECEIVED = 'RECEIVED', 'Received PO'  # Specific update action
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True
+    )
+    action = models.CharField(max_length=10, choices=Action.choices)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    # Generic Foreign Key to link to any model
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    
+    object_repr = models.CharField(max_length=255)  # String representation of the object
+
+    def __str__(self):
+        return f"{self.user} {self.action} {self.object_repr} at {self.timestamp}"
+
+    class Meta:
         ordering = ['-timestamp']

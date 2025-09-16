@@ -1,0 +1,69 @@
+Inventory Control System
+Objective
+To design and implement a full-stack inventory control system using Django and React that allows
+businesses to efficiently manage stock levels, track item movements, monitor suppliers, and
+generate real-time reports. The system aims to reduce manual errors, optimize stock usage, and
+provide visibility into inventory operations across warehouses or store locations.
+Core Features
+1. User Authentication & Role Management
+- Secure user registration and login with JWT authentication
+- User roles: Admin, Manager, Staff
+- Role-based access control for different system features
+- Password recovery and profile management
+2. Product and Stock Management
+- Add, update, and delete products with attributes (name, SKU, category, unit, price)
+- Track available stock, minimum stock level, and reorder point
+- Real-time stock updates on addition or removal
+- Barcode or QR code generation for product identification
+3. Inventory Transactions
+- Log inventory in and out records with date, quantity, and reason
+- Record transactions like purchases, sales, returns, and adjustments
+- Track stock movement history per product
+- Batch updates for multiple items at once
+4. Supplier and Purchase Order Management
+- Add and manage supplier information
+- Create and manage purchase orders
+- Link received items to purchase orders for automatic stock updates
+- Track order status: Pending, Shipped, Received
+5. Sales and Order Management
+- Create and manage customer sales orders
+- Deduct sold quantities from inventory
+- Generate printable invoices for completed orders
+- Monitor pending and fulfilled orders
+6. Dashboard and Reporting
+- Dashboard with:
+- Inventory summary
+- Low stock alerts
+- Recent transactions
+- Generate reports on:
+- Stock levels
+- Reorder needs
+- Transactions
+- Sales
+- Export reports in PDF or CSV format
+- Filter and search reports by date, product, or category
+7. Notifications and Alerts
+- Low stock alerts for items below minimum level
+- Reorder notifications with supplier suggestions
+- Email or in-app alerts for key inventory changes
+8. Responsive User Interface
+- React frontend with Bootstrap UI
+- Optimized for both desktop and mobile views
+- User-friendly navigation with search and filter features
+Success Criteria
+- Complete and secure user authentication and role-based permissions
+- Accurate stock tracking with real-time inventory updates
+- Reliable transaction and movement logs with traceability
+- Functional supplier and sales order workflows
+- Clear and usable dashboard with essential inventory insights
+- Smooth API interaction between Django backend and React frontend
+- Fully deployed and documented system on a cloud platform
+Optional Enhancements
+- Barcode scanner integration via mobile camera or hardware support
+- Warehouse zone or location-based inventory tracking
+- Multi-store or multi-warehouse inventory support
+- Audit trail with user activity logs
+- API integration with external accounting or e-commerce platforms
+- Drag-and-drop inventory planograms or visual layouts
+- Predictive restocking using usage history and trends
+- Offline mode with data sync when online connection resumes

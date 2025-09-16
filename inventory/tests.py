@@ -3,17 +3,29 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from .models import User, Product, Supplier, PurchaseOrder, PurchaseOrderItem, SalesOrder, SalesOrderItem, InventoryTransaction
 
+# ============================================================================
+#  COMPREHENSIVE API TEST CASES
+# ============================================================================
 class ComprehensiveAPITests(TestCase):
 
+    # ============================================================================
+    #  SETUP
+    # ============================================================================
     def setUp(self):
         """Set up the necessary objects for all tests."""
         # Create users with different roles
-        self.admin_user = User.objects.create_superuser(username='testadmin', password='password123', role='Admin', email='admin@test.com')
-        self.manager_user = User.objects.create_user(username='testmanager', password='password123', role='Manager', email='manager@test.com')
-        self.staff_user = User.objects.create_user(username='teststaff', password='password123', role='Staff', email='staff@test.com')
+        self.admin_user = User.objects.create_superuser(
+            username='testadmin', password='password123', role='Admin', email='admin@test.com'
+        )
+        self.manager_user = User.objects.create_user(
+            username='testmanager', password='password123', role='Manager', email='manager@test.com'
+        )
+        self.staff_user = User.objects.create_user(
+            username='teststaff', password='password123', role='Staff', email='staff@test.com'
+        )
 
         # Create API clients
-        self.client = APIClient() # Unauthenticated client
+        self.client = APIClient()  # Unauthenticated client
         self.manager_client = APIClient()
         self.staff_client = APIClient()
 
@@ -25,7 +37,9 @@ class ComprehensiveAPITests(TestCase):
         self.supplier = Supplier.objects.create(name="Test Supplier", email="supplier@test.com", phone="12345")
         self.product = Product.objects.create(name="Test Keyboard", sku="KEY-001", stock_quantity=100, unit_price=50.00)
 
-    # === Authentication and Roles Tests ===
+    # ============================================================================
+    #  AUTHENTICATION AND ROLES TESTS
+    # ============================================================================
     def test_unauthenticated_access_denied(self):
         """Ensure unauthenticated users get 401 Unauthorized for protected endpoints."""
         response = self.client.get('/api/products/')
@@ -33,12 +47,22 @@ class ComprehensiveAPITests(TestCase):
 
     def test_user_registration(self):
         """Test the user registration endpoint."""
-        data = {"username": "newuser", "password": "newpassword123", "password2": "newpassword123", "email": "new@test.com", "role": "Staff", "first_name": "New", "last_name": "User"}
+        data = {
+            "username": "newuser",
+            "password": "newpassword123",
+            "password2": "newpassword123",
+            "email": "new@test.com",
+            "role": "Staff",
+            "first_name": "New",
+            "last_name": "User"
+        }
         response = self.client.post('/api/register/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 4)
 
-    # === Product and Supplier RBAC Tests ===
+    # ============================================================================
+    #  PRODUCT AND SUPPLIER RBAC TESTS
+    # ============================================================================
     def test_staff_can_list_products(self):
         """Staff should have read-only access to products."""
         response = self.staff_client.get('/api/products/')
@@ -57,7 +81,9 @@ class ComprehensiveAPITests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Product.objects.filter(sku="MOUSE-MANAGER").exists())
 
-    # === Purchase Order Workflow Test ===
+    # ============================================================================
+    #  PURCHASE ORDER WORKFLOW TEST
+    # ============================================================================
     def test_receive_purchase_order_updates_stock(self):
         """Test that receiving a PO increases stock and creates a transaction log."""
         initial_stock = self.product.stock_quantity
@@ -82,7 +108,9 @@ class ComprehensiveAPITests(TestCase):
         po.refresh_from_db()
         self.assertEqual(po.status, 'Received')
 
-    # === Sales Order Workflow Tests ===
+    # ============================================================================
+    #  SALES ORDER WORKFLOW TESTS
+    # ============================================================================
     def test_sales_order_deducts_stock(self):
         """Test that creating a sales order decreases stock and creates a transaction log."""
         initial_stock = self.product.stock_quantity
@@ -112,7 +140,9 @@ class ComprehensiveAPITests(TestCase):
         response = self.staff_client.post('/api/sales-orders/', so_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # === Reporting Test ===
+    # ============================================================================
+    #  REPORTING TEST
+    # ============================================================================
     def test_transaction_report_filtering(self):
         """Test that the transaction report can be filtered by type."""
         # Create a sale transaction
