@@ -1,0 +1,81 @@
+tree backend -L1
+backend
+├── asgi.py
+├── settings.py
+├── urls.py
+└── wsgi.py
+
+2 directories, 5 files
+
+
+tree inventory/
+inventory/
+├── admin.py
+├── apps.py
+├── migrations/
+├── models.py
+├── permissions.py
+├── serializers.py
+├── signals.py
+├── tests.py
+├── urls.py
+├── utils.py
+└── views.py
+
+4 directories, 32 files
+
+
+
+tree src/
+src/
+├── App.css
+├── App.js
+├── App.test.js
+├── components
+│   ├── AuthenticatedImage.js
+│   ├── Invoice.css
+│   ├── InvoiceComponent.js
+│   ├── layout
+│   │   ├── AppNavbar.js
+│   │   ├── Breadcrumbs.js
+│   │   ├── Layout.js
+│   │   └── Sidebar.js
+│   ├── ProductFormModal.js
+│   ├── ProtectedRoute.js
+│   ├── RoleRequired.js
+│   ├── SupplierFormModal.js
+│   └── ui
+│       ├── EmptyState.js
+│       ├── PageHeader.js
+│       ├── PaginationBar.js
+│       ├── SortDropdown.js
+│       ├── TableToolbar.js
+│       └── ToastProvider.js
+├── context
+│   └── AuthContext.js
+├── index.css
+├── index.js
+├── pages
+│   ├── AuditTrailPage.js
+│   ├── ConfirmPasswordResetPage.js
+│   ├── CreatePurchaseOrderPage.js
+│   ├── CreateSalesOrderPage.js
+│   ├── DashboardPage.js
+│   ├── InvoicePage.js
+│   ├── LoginPage.js
+│   ├── ProductsPage.js
+│   ├── ProfilePage.js
+│   ├── PurchaseOrdersPage.js
+│   ├── RegisterPage.js
+│   ├── ReportsPage.js
+│   ├── RequestPasswordResetPage.js
+│   ├── SalesOrdersPage.js
+│   └── SuppliersPage.js
+├── reportWebVitals.js
+├── services
+│   └── api.js
+├── setupTests.js
+└── styles
+    └── theme.css
+
+8 directories, 42 files

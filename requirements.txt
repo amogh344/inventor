@@ -9,6 +9,8 @@ django-filter==25.1
 django-rest-passwordreset==1.5.0
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
+env==0.1.0
+environ==1.0
 Faker==37.5.3
 fonttools==4.59.1
 mysqlclient==2.2.7
@@ -17,6 +19,8 @@ pycparser==2.22
 pydyf==0.11.0
 PyJWT==2.10.1
 pyphen==0.17.2
+python-barcode==0.15.1
+qrcode==8.2
 sqlparse==0.5.3
 tinycss2==1.4.0
 tinyhtml5==2.0.0
